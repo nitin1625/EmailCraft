@@ -25,4 +25,3 @@ This project utilizes the OpenAI API to generate realistic email text. It levera
 
 ## Contributing
 Contributions are welcome! Fork this repository and submit pull requests for enhancements or bug fixes.
-
