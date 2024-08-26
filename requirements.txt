@@ -1,3 +1,4 @@
 langchain
-openai
+langchain
 streamlit
+langchain_google_genai

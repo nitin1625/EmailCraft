@@ -1,6 +1,7 @@
 import streamlit as st
 from langchain import PromptTemplate
-from langchain.llms import OpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+import os 
 
 template = """
     Below is an email that may be poorly worded.
@@ -37,11 +38,10 @@ prompt = PromptTemplate(
 )
 
 
-def load_LLM(openai_api_key):
-    """Logic for loading the chain you want to use should go here."""
-    # Make sure your openai_api_key is set as an environment variable
-    llm = OpenAI(temperature=.7, openai_api_key=openai_api_key)
-    return llm
+def load_LLM():
+    cached_llm = ChatGoogleGenerativeAI(google_api_key=os.getenv('GOOGLE_API_KEY'), model="gemini-pro",
+                                    convert_system_message_to_human=True)
+    return cached_llm
 
 
 st.set_page_config(page_title="Globalize Email", page_icon=":robot:")
@@ -58,12 +58,6 @@ st.markdown(
 
 
 st.markdown("## Enter Your Email To Convert")
-def get_api_key():
-    input_text = st.text_input(label="OpenAI API Key ",  placeholder="Ex: sk-2twmA8tfCb8un4...", key="openai_api_key_input")
-    return input_text
-
-openai_api_key = get_api_key()
-
 
 col1, col2 = st.columns(2)
 with col1:
@@ -108,16 +102,7 @@ with co2:
 st.markdown("### Your Converted Email:")
 if(submit):
     if email_input:
-        if not openai_api_key:
-            st.warning(
-                'Please insert OpenAI API Key. Instructions [here](https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key)',
-                icon="⚠️")
-            st.stop()
-
-        llm = load_LLM(openai_api_key=openai_api_key)
-
+        llm = load_LLM()
         prompt_with_email = prompt.format(tone=option_tone, dialect=option_dialect, email=email_input)
-
-        formatted_email = llm(prompt_with_email)
-
-        st.write(formatted_email)
+        formatted_email = llm.invoke(prompt_with_email)
+        st.write(formatted_email.content)
